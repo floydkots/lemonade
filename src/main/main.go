@@ -1,29 +1,44 @@
 package main
 
 import (
-	"text/template"
-	"os"
-	"net/http"
-	"strings"
-	"bufio"
+  "net/http"
+  "os"
+  "text/template"
+  "bufio"
+  "strings"
+  "lemonade/src/viewmodels"
 )
 
 func main() {
 	templates := populateTemplates()
-
-	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		requestedFile := req.URL.Path[1:]
-		template := templates.Lookup(requestedFile + ".html")
-		if template != nil {
-			template.Execute(w, nil)
-		} else {
-			w.WriteHeader(404)
-		}
-	})
-
+	
+	http.HandleFunc("/", 
+		func(w http.ResponseWriter, req *http.Request) {
+			requestedFile := req.URL.Path[1:]
+			template :=
+				templates.Lookup(requestedFile + ".html")
+				
+			var context interface{} = nil
+			switch requestedFile {
+			case "home":
+				context = viewmodels.GetHome()
+			case "categories":
+				context = viewmodels.GetCategories()
+			case "products":
+				context = viewmodels.GetProducts()	
+			case "product":
+				context = viewmodels.GetProduct()
+			}
+			if template != nil {
+				template.Execute(w, context)
+			} else {
+				w.WriteHeader(404)
+			}
+		})
+	
 	http.HandleFunc("/img/", serveResource)
-	http.HandleFunc("/css", serveResource)
-
+	http.HandleFunc("/css/", serveResource)
+	
 	http.ListenAndServe(":8000", nil)
 }
 
@@ -37,13 +52,13 @@ func serveResource(w http.ResponseWriter, req *http.Request) {
 	} else {
 		contentType = "text/plain"
 	}
-
+	
 	f, err := os.Open(path)
-
+	
 	if err == nil {
 		defer f.Close()
 		w.Header().Add("Content-Type", contentType)
-
+		
 		br := bufio.NewReader(f)
 		br.WriteTo(w)
 	} else {
@@ -53,12 +68,13 @@ func serveResource(w http.ResponseWriter, req *http.Request) {
 
 func populateTemplates() *template.Template {
 	result := template.New("templates")
-
+	
 	basePath := "templates"
 	templateFolder, _ := os.Open(basePath)
 	defer templateFolder.Close()
-
+	
 	templatePathsRaw, _ := templateFolder.Readdir(-1)
+	
 	templatePaths := new([]string)
 	for _, pathInfo := range templatePathsRaw {
 		if !pathInfo.IsDir() {
@@ -66,7 +82,8 @@ func populateTemplates() *template.Template {
 				basePath + "/" + pathInfo.Name())
 		}
 	}
-
+	
 	result.ParseFiles(*templatePaths...)
+	
 	return result
 }
