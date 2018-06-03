@@ -10,11 +10,27 @@ type Products struct {
 	Products []Product
 }
 
-func GetProducts() Products {
+func GetProducts(id int) Products {
 	var result Products
 	result.Active = "shop"
-	result.Title = "Lemonade Stand Society - Juice Shop"
-	
+	var shopName string
+	switch id {
+	case 1:
+		shopName = "Juice"
+	case 2:
+		shopName = "Supply"
+	case 3:
+		shopName = "Advertising"
+	}
+	result.Title = "Lemonade Stand Society - " + shopName + " Shop"
+	if id == 1 {
+		result.Products = getProductList()
+	}
+
+	return result
+}
+
+func getProductList() []Product {
 	lemonJuice := MakeLemonJuiceProduct()
 	appleJuice := MakeAppleJuiceProduct()
 	watermelonJuice := MakeWatermelonJuiceProduct()
@@ -23,8 +39,8 @@ func GetProducts() Products {
 	orangeJuice := MakeOrangeJuiceProduct()
 	pineappleJuice := MakePineappleJuiceProduct()
 	strawberryJuice := MakeStrawberryJuiceProduct()
-	
-	result.Products = []Product{
+
+	result := []Product{
 		lemonJuice,
 		appleJuice,
 		watermelonJuice,
@@ -34,7 +50,6 @@ func GetProducts() Products {
 		pineappleJuice,
 		strawberryJuice,
 	}
-	
 	return result
 }
 
@@ -44,14 +59,23 @@ type ProductVM struct {
 	Product Product
 }
 
-func GetProduct() ProductVM {
+func GetProduct(id int) ProductVM {
 	var result ProductVM
-	
+
+	productList := getProductList()
+	var product Product
+	for _, p := range productList {
+		if p.Id == id {
+			product = p
+			break
+		}
+	}
+
 	result.Active = "shop"
-	result.Title = "Lemonade Stand Society - Lemon Juice"
-	
-	result.Product = MakeLemonJuiceProduct()
-	
+	result.Title = "Lemonade Stand Society - " + product.Name
+
+	result.Product = product
+
 	return result
 }
 
@@ -81,7 +105,7 @@ func MakeLemonJuiceProduct() Product {
 		ImageUrl: "lemon.png",
 		Id: 1,
 	}
-	
+
 	return result
 }
 
@@ -97,7 +121,7 @@ func MakeAppleJuiceProduct() Product {
 		ImageUrl: "apple.png",
 		Id: 2,
 	}
-	
+
 	return result
 }
 
@@ -113,7 +137,7 @@ func MakeWatermelonJuiceProduct() Product {
 		ImageUrl: "watermelon.png",
 		Id: 3,
 	}
-	
+
 	return result
 }
 
@@ -129,7 +153,7 @@ func MakeKiwiJuiceProduct() Product {
 		ImageUrl: "kiwi.png",
 		Id: 4,
 	}
-	
+
 	return result
 }
 
@@ -145,7 +169,7 @@ func MakeMangosteenJuiceProduct() Product {
 		ImageUrl: "mangosteen.png",
 		Id: 5,
 	}
-	
+
 	return result
 }
 
@@ -161,7 +185,7 @@ func MakeOrangeJuiceProduct() Product {
 		ImageUrl: "orange.png",
 		Id: 6,
 	}
-	
+
 	return result
 }
 
@@ -177,7 +201,7 @@ func MakePineappleJuiceProduct() Product {
 		ImageUrl: "pineapple.png",
 		Id: 7,
 	}
-	
+
 	return result
 }
 
@@ -193,6 +217,6 @@ func MakeStrawberryJuiceProduct() Product {
 		ImageUrl: "strawberry.png",
 		Id: 8,
 	}
-	
+
 	return result
 }
