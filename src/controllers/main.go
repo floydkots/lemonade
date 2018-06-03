@@ -30,6 +30,15 @@ func Register(templates *template.Template) {
 	productController.template = templates.Lookup("product.html")
 	router.HandleFunc("/products/{id}", productController.get)
 
+	profileController := new(profileController)
+	profileController.template = templates.Lookup("profile.html")
+	router.HandleFunc("/profile", profileController.handle)
+
+	standLocatorCtrl := new (standLocatorController)
+	standLocatorCtrl.template = templates.Lookup("stand_locator.html")
+	router.HandleFunc("/stand_locator", standLocatorCtrl.get)
+	router.HandleFunc("/api/stand_locator", standLocatorCtrl.apiSearch)
+
 	http.Handle("/", router)
 
 	http.HandleFunc("/img/", serveResource)
