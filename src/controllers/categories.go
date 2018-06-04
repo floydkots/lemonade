@@ -7,6 +7,8 @@ import (
 	"github.com/gorilla/mux"
 	"strconv"
 	"lemonade/src/controllers/util"
+	"lemonade/src/models"
+	"lemonade/src/converters"
 )
 
 type categoriesController struct {
@@ -14,7 +16,15 @@ type categoriesController struct {
 }
 
 func (this *categoriesController) get(w http.ResponseWriter, req *http.Request) {
+	categories := models.GetCategories()
+
+	var categoriesVM []viewmodels.Category
+	for _, category := range categories {
+		categoriesVM = append(categoriesVM, converters.ConvertCategoryToViewModel(category))
+	}
+
 	vm := viewmodels.GetCategories()
+	vm.Categories = categoriesVM
 
 	w.Header().Add("Content-Type", "text/html")
 	responseWriter := util.GetResponseWriter(w, req)
@@ -44,5 +54,4 @@ func (this *categoryController) get (w http.ResponseWriter, req *http.Request) {
 	} else {
 		w.WriteHeader(404)
 	}
-
 }
